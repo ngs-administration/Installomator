@@ -1199,3 +1199,7 @@ zulujdk23
 zulujdk25
 zulujdk8
 zulujdkfx17
+pinta
+awork
+elgatowavelink
+elgatocontrolcenter
