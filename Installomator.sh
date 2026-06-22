@@ -349,7 +349,7 @@ if [[ $(/usr/bin/arch) == "arm64" ]]; then
     fi
 fi
 VERSION="10.9beta"
-VERSIONDATE="2026-06-04"
+VERSIONDATE="2026-06-17"
 
 # MARK: Functions
 
@@ -5496,6 +5496,14 @@ gns3)
     appNewVersion="$(versionFromGit GNS3 gns3-gui)"
     expectedTeamID="5C3VHX9RG5"
     ;;
+godot)
+    name="Godot"
+    type="zip"
+    appNewVersion=$(curl -fsSL https://godotengine.org/download/archive/ | tr '\302\240' ' ' | grep -Eo '[0-9]+\.[0-9]+(\.[0-9]+)?-stable' | head -n1 | sed 's/-stable$//')
+    downloadURL="https://downloads.godotengine.org/?version=$appNewVersion&flavor=stable&slug=macos.universal.zip&platform=macos.universal"
+    expectedTeamID="6K46PWY5DM"
+    versionKey="CFBundleVersion"
+    ;;
 goland)
     name="GoLand"
     type="dmg"
@@ -6210,6 +6218,16 @@ jamfcheck)
     downloadURL="$(downloadURLFromGit txhaflaire JamfCheck)"
     appNewVersion="$(versionFromGit txhaflaire JamfCheck)"
     expectedTeamID="CLQKFNPCCP"
+    ;;
+jamfcli|\
+jamf-cli)
+    name="jamf-cli"
+    type="pkg"
+    downloadURL="$( downloadURLFromGit Jamf-Concepts jamf-cli )"
+    appNewVersion="$( versionFromGit Jamf-Concept jamf-cli )"
+    expectedTeamID="483DWKW443"
+    appName="jamf-cli"
+    appCustomVersion() { /usr/local/bin/jamf-cli --version | head -n1 | awk '{ print \$2 }' }
     ;;
 jamfconnect)
     name="Jamf Connect"
@@ -8991,9 +9009,8 @@ packages)
     name="Packages"
     type="pkgInDmg"
     pkgName="Install Packages.pkg"
-    pkgsDetails="$(curl -fs "http://s.sudre.free.fr/Software/documentation/RemoteVersion.plist")"
-    appNewVersion=$(echo "${pkgsDetails}"| xpath 'string(//dict/string[1])' 2>/dev/null)
-    downloadURL=$(echo "${pkgsDetails}"| xpath 'string(//dict/string[2])' 2>/dev/null)
+    appNewVersion=$(curl -fsL http://s.sudre.free.fr/Software/Packages/release_notes.html | grep "<b>Version</b>" | grep -oE "[0-9].*[0-9]")
+    downloadURL="http://s.sudre.free.fr/Software/files/Packages.dmg"
     expectedTeamID="NL5M9E394P"
    ;;
 pandoc)
@@ -9612,26 +9629,27 @@ redgiant)
     ;;
 redshift)
     name="redshift"
-    appName="Maxon Redshift Installer.app"
     blockingProcesses=( "Cinema 4D" )
     type="dmg"
-    packageID="com.redshift3d.redshift"
     expectedTeamID="4ZY22YGXQG"
     downloadURL=$(curl -fsL https://www.maxon.net/en/downloads | grep -oE '[^"]*redshift[^"]*macos\.dmg' | head -1)
     appNewVersion=$(sed -n 's/.*redshift_\([^_]*\).*/\1/p' <<< "${downloadURL}")
+    appCustomVersion() {/usr/bin/defaults read "/Applications/Maxon Redshift 2026/uninstall.app/Contents/Info.plist" CFBundleVersion }
     installerTool="Maxon Redshift Installer.app"
     CLIInstaller="Maxon Redshift Installer.app/Contents/MacOS/installbuilder.sh"
-    # Customize --enable-components for other DCC integrations (Maya, Vectorworks, ZBrush)
     CLIArguments=( --mode unattended --enable-components Cinema4DGroup,PluginC4D2023,PluginC4D2024,PluginC4D2025,PluginC4D2026 )
     ;;
 redshiftlite)
     name="redshift"
     blockingProcesses=( "Cinema 4D" )
-    type="pkg"
-    packageID="com.redshift3d.redshift"
+    type="dmg"
     expectedTeamID="4ZY22YGXQG"
-    downloadURL=$(curl -fsL https://www.maxon.net/en/downloads | grep -oE '[^"]*redshift[^"]*min\.pkg' | head -1)
+    downloadURL=$(curl -fsL https://www.maxon.net/en/downloads | grep -oE '[^"]*redshift[^"]*min\.dmg' | head -1)
     appNewVersion=$(sed -n 's/.*redshift_\([^_]*\).*/\1/p' <<< "${downloadURL}")
+    appCustomVersion() {/usr/bin/defaults read "/Applications/Maxon Redshift 2026/uninstall.app/Contents/Info.plist" CFBundleVersion }
+    installerTool="Maxon Redshift Installer.app"
+    CLIInstaller="Maxon Redshift Installer.app/Contents/MacOS/installbuilder.sh"
+    CLIArguments=( --mode unattended --enable-components Cinema4DGroup,PluginC4D2023,PluginC4D2024,PluginC4D2025,PluginC4D2026 )
     ;;
 reflector4)
     name="Reflector 4"
@@ -10586,6 +10604,13 @@ sshfs)
     appNewVersion="$(versionFromGit libfuse sshfs)"
     expectedTeamID="3T5GSNBU6W"
     ;;
+starface10x)
+    name="STARFACE"
+    type="dmg"
+    downloadURL=$(curl -fs "https://www.starface-cdn.de/starface/clients/mac/appcast.xml" | grep -i 'enclosure ' | grep -i 'url=' | grep -m 1 -F 'shortVersionString="10.' | cut -d '"' -f 10)
+    appNewVersion=$(curl -fs "https://www.starface-cdn.de/starface/clients/mac/appcast.xml" | grep -i 'enclosure ' | grep -i 'url=' | grep -m 1 -F 'shortVersionString="10.' | cut -d '"' -f 4)
+    expectedTeamID="Q965D3UXEW"
+    ;;
 starface90x)
     name="STARFACE"
     # Downloads the latest 9.0.x version of the STARFACE Client. The client depends on the version of the PBX, so the correct version should be selected for installation
@@ -11042,6 +11067,16 @@ teamwire)
     appNewVersion=$(curl -fsI $downloadURL | grep -i 'Location' | cut -d ' ' -f2 | sed 's|.*dist/v\([^/]*\).*|\1|')
     expectedTeamID="2JCSJ44B3U"
     ;;
+techsmithaudiate)
+	name="TechSmith Audiate"
+	type="dmg"
+	baseURL="https://cdn-audiate.cloud.techsmith.com/audiate"
+	feedURL="$(curl -fsL "$baseURL/latest-mac.yml")"
+	appNewVersion="$(echo "$feedURL" | awk -F': ' '/^version: /{print $2}')"
+	downloadURL="${baseURL}/$(echo "$feedURL" | awk '/universal.*\.dmg/{print $3}')"
+	appName="Audiate.app"
+	expectedTeamID="7TQL462TU8"
+	;;
 techsmithcapture)
     # credit Elena Ackley (@elenaelago)
     name="TechSmith Capture"
@@ -11311,18 +11346,18 @@ topazphoto|\
 topazphotoai)
     name="Topaz Photo AI"
     type="pkg"
-    appNewVersion=$(curl -fs https://www.topazlabs.com/downloads | grep  -o 'photoVersion = "v.*"' | grep -o ' "v.*"' | sed -E 's/[v|"| ]//g')
     downloadURL="https://topazlabs.com/d/photo/latest/mac/full"
-    archiveName="TopazPhotoAI-${appNewVersion}.pkg"
+    archiveName=$(curl -fsIL $downloadURL | grep -i ^location | awk -F "/" '{print $NF}' | tr -d '\r\n')
+    appNewVersion=$(grep -oi "[0-9].*[0-9]" <<< $archiveName)
     expectedTeamID="3G3JE37ZHF"
     ;;
 topazvideo|\
 topazvideoai)
     name="Topaz Video AI"
-    type="pkg"
-    appNewVersion=$(curl -fs https://www.topazlabs.com/downloads | grep  -o 'videoVersion = "v.*"' | grep -o ' "v.*"' | sed -E 's/[v|"| ]//g')
+    type="dmg"
     downloadURL="https://topazlabs.com/d/tvai/latest/mac/full"
-    archiveName="TopazVideoAI-${appNewVersion}.pkg"
+    archiveName=$(curl -fsIL $downloadURL | grep -i ^location | awk -F "/" '{print $NF}' | tr -d '\r\n')
+    appNewVersion=$(grep -oi "[0-9].*[0-9]" <<< $archiveName)
     expectedTeamID="3G3JE37ZHF"
     ;;
 tophat)
@@ -12553,6 +12588,53 @@ zulujdkfx17)
     expectedTeamID="TDTHCUPYFR"
     appCustomVersion(){ java -version 2>&1 | grep Runtime | awk '{print $4}' | sed -e "s/.*Zulu//" | cut -d '-' -f 1 | sed -e "s/+/\./" }
     appNewVersion=$(echo "$downloadURL" | cut -d "-" -f 1 | sed -e "s/.*zulu//") # Cannot be compared to anything
+    ;;
+pinta)
+    name="Pinta"
+    type="dmg"
+    appName="Pinta.app"
+    downloadURL="https://github.com/PintaProject/Pinta/releases/latest/download/Pinta-macos-arm64.dmg"
+    appNewVersion=$(curl -sfL "https://api.github.com/repos/PintaProject/Pinta/releases/latest" \
+        | grep '"tag_name"' \
+        | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+    expectedTeamID="D5G6C56TBH"
+    ;;
+elgatocontrolcenter)
+    name="Elgato Control Center"
+    type="zip"
+    appName="Elgato Control Center.app"
+    appNewVersion=$(curl -sfL \
+        -H "User-Agent: ElgatoControlCenter/1.8.2 CFNetwork/1494.0.7 Darwin/23.4.0" \
+        "https://gc-updates.elgato.com/macos/eccm-update/stable/app-version-check.json" \
+        | grep -o '"Version":"[^"]*"' | head -1 | cut -d'"' -f4)
+    downloadURL="https://edge.elgato.com/egc/macos/eccm/${appNewVersion}/ElgatoControlCenter-${appNewVersion}.20643.zip"
+    expectedTeamID="Y93VXCB8Q5"
+    ;;
+elgatowavelink)
+    name="Elgato Wave Link"
+    type="dmg"
+    appName="Elgato Wave Link.app"
+    appNewVersion=$(curl -sfL \
+        -H "User-Agent: ElgatoWaveLink/3.2.0 CFNetwork/1494.0.7 Darwin/23.4.0" \
+        "https://gc-updates.elgato.com/macos/ewlm-update/stable/app-version-check.json" \
+        | grep -o '"Version":"[^"]*"' | head -1 | cut -d'"' -f4)
+    downloadURL=$(curl -sfL \
+        -H "User-Agent: ElgatoWaveLink/3.2.0 CFNetwork/1494.0.7 Darwin/23.4.0" \
+        "https://gc-updates.elgato.com/macos/ewlm-update/stable/app-version-check.json" \
+        | grep -o '"fileURL":"[^"]*"' | head -1 | cut -d'"' -f4)
+    expectedTeamID="Y93VXCB8Q5"
+    ;;
+awork)
+    name="awork"
+    type="dmg"
+    appName="awork.app"
+    # awork liefert beim Download-Redirect die Version im Dateinamen
+    appNewVersion=$(curl -sIL \
+        "https://api.awork.com/api/v1/versions/electron/releases/download?platform=mac_arm64" \
+        | grep -i "location:" | tail -1 \
+        | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+    downloadURL="https://api.awork.com/api/v1/versions/electron/releases/download?platform=mac_arm64"
+    expectedTeamID="G47S2MC5J7"
     ;;
 *)
     # unknown label
