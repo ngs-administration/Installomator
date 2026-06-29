@@ -1,5 +1,4 @@
- 
-elgatowavelink)
+ elgatowavelink)
     name="Elgato Wave Link"                                          # ❗ Bundle-Name prüfen: ls /Applications | grep -i wave
     type="dmg"                                                       # CDN liefert .dmg
     elgatoJSON=$(curl -fsSL "https://gc-updates.elgato.com/mac/ewlm-update/final/app-version-check.json")  # ❗ Endpoint testen
