@@ -56,6 +56,7 @@ anaconda
 anastasiysextensionmanager
 androidfiletransfer
 androidstudio
+ankerwork
 anki
 anotherredisdesktopmanager
 antconc
@@ -64,6 +65,7 @@ apachedirectorystudio
 apachenetbeans
 ape
 apparency
+appautopatch
 appcleaner
 applenyfonts
 appleprovideoformats
@@ -98,7 +100,7 @@ automounter
 autopkgr
 avertouch
 aviatrix
-awscli2
+awork
 awsvpnclient
 axurerp10
 azuredatastudio
@@ -122,6 +124,7 @@ betterzip
 beyondcomparepro
 bezel
 bibdesk
+bitfocuscompanion
 bitrix24
 bitwarden
 bitwigstudio
@@ -217,6 +220,7 @@ cinema4d2025
 cinema4d2026
 cisdemdocumentreader
 citrixworkspace
+claricopilot
 claudedesktop
 cleartouchcollage
 clevershare2
@@ -240,6 +244,7 @@ colourcontrastanalyser
 conductor
 connectfonts
 container
+containermanager
 cormorant
 coteditor
 craftmanagerforsketch
@@ -277,6 +282,7 @@ detectxswift
 determinate
 devin
 devonthink
+dfublasterpro
 dia
 dialog
 dialpad
@@ -330,8 +336,8 @@ elasticvue
 element
 elevate24
 elgatocamerahub
-elgatostreamdeck
-emacs
+elgatocontrolcenter
+elgatowavelink
 emdash
 enpass
 enteauth
@@ -450,6 +456,7 @@ graphicconverter10
 grasshopper
 grooveomnidialerenterpriseedition
 guardianbrowser
+guardlydata
 gyazo
 gyazogif
 hancock
@@ -633,6 +640,7 @@ managedappschemabuilder
 marathon
 marathon2
 marathoninfinity
+markdownpreview
 masterfader
 masv
 mattermost
@@ -721,6 +729,7 @@ mockoon
 moderncsv
 mongodbcompass
 monitorcontrol
+monotypeconnect
 montereyblocker
 morisawadesktopmanager
 motion
@@ -744,6 +753,7 @@ netspot
 networksharemounter
 nextcloud
 nextcloudtalk
+nexusshell
 nodejs
 nodejslts
 nomachine
@@ -794,7 +804,6 @@ openrefine
 openvpnconnect
 openvpnconnectv3
 opera
-oraclesqldeveloper
 orbstack
 orcaslicer
 origin
@@ -825,7 +834,7 @@ pgadmin4
 phoenixcode
 pika
 pingplotter
-pique
+pinta
 pitch
 plantronicshub
 platypus
@@ -976,6 +985,7 @@ snagit2025
 snagit2026
 snapgene
 snapgeneviewer
+snowflakeodbc
 soapuiopensource
 sococo
 softubecentral
@@ -996,7 +1006,6 @@ splashtopsos
 splashtopstreamer
 splice
 spotify
-sqldeveloper
 sqlitebrowser
 sqlpropostgres
 sqlprostudio
@@ -1036,6 +1045,7 @@ synologydriveclient
 sysexlibrarian
 tabby
 tableaudesktop
+tableauprepbuilder
 tableaupublic
 tableaureader
 tableplus
@@ -1071,6 +1081,7 @@ thunderbirdesr
 ticktick
 tidal
 tigervnc
+timelymemory
 todoist
 toggltrack
 tom4aconverter
@@ -1201,6 +1212,7 @@ zeplin
 zerotier
 zettlr
 zipwhip
+zoapiclient
 zohoworkdrive
 zohoworkdrivegenie
 zohoworkdrivetruesync
