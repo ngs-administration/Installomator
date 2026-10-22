@@ -353,7 +353,7 @@ if [[ $(/usr/bin/arch) == "arm64" ]]; then
     fi
 fi
 VERSION="10.10beta"
-VERSIONDATE="2026-10-13"
+VERSIONDATE="2026-10-22"
 
 # MARK: Functions
 
@@ -1413,7 +1413,12 @@ updateDialog() {
             echo "progress: $progress" >> $cmd_file
         fi
         if [[ $message != "" ]]; then
-            echo "progresstext: $message" >> $cmd_file
+            if [[ $appNewVersion != "" ]]; then
+                appVersionProgressText=${appNewVersion// /}
+                echo "progresstext: v$appVersionProgressText $message" >> $cmd_file
+            else
+                echo "progresstext: $message" >> $cmd_file
+            fi
         fi
     else
         # list item has a value, so we update the progress and text in the list
@@ -2238,7 +2243,7 @@ androidstudio)
     androidXML="https://dl.google.com/android/studio/patches/updates.xml"
     appNewVersion=$(curl -fsSL "$androidXML" | xmllint --xpath 'string((//channel[@status="release"]/build)[1]/@number)' - 2>/dev/null)
     expectedTeamID="EQHXZ8M8AV"
-    blockingProcesses=( androidstudio )
+    blockingProcesses=( studio )
     versionKey="CFBundleVersion"
     ;;
 ankerwork)
@@ -2688,7 +2693,13 @@ aviatrix)
     downloadURL="https://s3-us-west-2.amazonaws.com/aviatrix-download/AviatrixVPNClient/AVPNC_mac.pkg"
     expectedTeamID="32953Z7NBN"
     ;;
-awscli2)
+awork)
+    name="awork"
+    type="dmg"
+    downloadURL="https://api.awork.com/api/v1/versions/electron/releases/download?platform=mac_arm64"
+    appNewVersion=""
+    expectedTeamID="G47S2MC5J7"
+    ;;awscli2)
     # credit: Bilal Habib (@Pro4TLZZ)
     name="AWSCLI"
     type="pkg"
@@ -2763,13 +2774,6 @@ bambustudio)
     downloadURL=$(downloadURLFromGit "bambulab" "BambuStudio")
     appNewVersion=$(versionFromGit "bambulab" "BambuStudio")
     expectedTeamID="T3UBR9Y3B2"
-    ;;
-bartender)
-    # credit: Gabe Marchan (gabemarchan.com - @darklink87)
-    name="Bartender 4"
-    type="dmg"
-    downloadURL="https://www.macbartender.com/B2/updates/B4Latest/Bartender%204.dmg"
-    expectedTeamID="8DD663WDX4"
     ;;
 basecamp3)
     name="Basecamp 3"
@@ -5161,7 +5165,13 @@ elgatocamerahub)
     expectedTeamID="Y93VXCB8Q5"
     blockingProcesses=( "Camera Hub" )
     ;;
-elgatostreamdeck)
+controlcenter)
+    name="ControlCenter"
+    type="zip"
+    downloadURL="https://edge.elgato.com/egc/macos/eccm/1.9.1/ElgatoControlCenter-1.9.1.21030.app.zip"
+    appNewVersion=""
+    expectedTeamID="Y93VXCB8Q5"
+    ;;elgatostreamdeck)
     name="Elgato Stream Deck"
     type="pkg"
     # packageID="com.elgato.StreamDeck"
@@ -5170,7 +5180,13 @@ elgatostreamdeck)
     expectedTeamID="Y93VXCB8Q5"
     blockingProcesses=( "Stream Deck" )
     ;;
-emacs)
+elgatowavelink)
+    name="Elgato Wave Link"
+    type="dmg"
+    downloadURL="https://edge.elgato.com/egc/macos/ewlm/release/ElgatoWaveLink-3.4.0.3281.dmg"
+    appNewVersion=""
+    expectedTeamID="Y93VXCB8Q5"
+    ;;emacs)
     name="Emacs"
     type="dmg"
     downloadURL="$(curl -fsL "https://emacsformacosx.com/atom/release" | xpath '//feed/entry[1]/content/div/p/a' 2>/dev/null | cut -d '"' -f 2)"
@@ -5312,8 +5328,8 @@ examplify)
     expectedTeamID="5P9D4ESR3W"
     blockingProcesses=("Examplify")
     ;;
-exelbanstats)
-    # credit: Søren Theilgaard (@theilgaard)
+exelbanstats|\
+stats)
     name="Stats"
     type="dmg"
     downloadURL=$(downloadURLFromGit exelban stats)
@@ -5412,6 +5428,20 @@ ffmpegmartinriedl)
     downloadURL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/${archDir}/release/ffmpeg.pkg"
     appNewVersion=$(curl -fsL -r 0-0 -o /dev/null -w '%{url_effective}' "$downloadURL" | sed -E 's#^.*/[0-9]+_([0-9]+(\.[0-9]+)+)/ffmpeg\.pkg$#\1#')
     appCustomVersion() { /usr/local/bin/ffmpeg -version 2>/dev/null | awk 'NR==1 { sub(/^ffmpeg version /, ""); sub(/-https:.*/, ""); print $1 }'; }
+    expectedTeamID="KU3N25YGLU"
+    blockingProcesses=( NONE )
+    ;;
+ffprobemartinriedl)
+    name="FFprobe"
+    type="pkg"
+    if [[ $(arch) == "arm64" ]]; then
+        archDir="arm64"
+    else
+        archDir="amd64"
+    fi
+    downloadURL="https://ffmpeg.martin-riedl.de/redirect/latest/macos/${archDir}/release/ffprobe.pkg"
+    appNewVersion=$(curl -fsL -r 0-0 -o /dev/null -w '%{url_effective}' "$downloadURL" | sed -E 's#^.*/[0-9]+_([0-9]+(\.[0-9]+)+)/ffprobe\.pkg$#\1#')
+    appCustomVersion() { /usr/local/bin/ffprobe -version 2>/dev/null | awk 'NR==1 { sub(/^ffprobe version /, ""); sub(/-https:.*/, ""); print $1 }'; }
     expectedTeamID="KU3N25YGLU"
     blockingProcesses=( NONE )
     ;;
@@ -6538,9 +6568,14 @@ houdahspot)
 hpclick)
     name="HP Click"
     type="dmg"
-    hpClickData=$(curl -fsS -X POST "https://support.hp.com/wcc-services/swd-v2/driverDetails?authState=anonymous&template=SWDSeriesDownload" -H "Accept: application/json, text/plain, */*" -H "Content-Type: application/json" -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" -H "Origin: https://support.hp.com" -H "Referer: https://support.hp.com/us-en/drivers/hp-click-printing-software/15550865" -d '{"productLineCode":"GE","lc":"en","cc":"us","osTMSId":"18015185915131310124113888731054140111953115","osName":"Mac OS","productNumberOid":21355055,"productSeriesOid":15550865,"platformId":"275027708611380099388405694207665"}')
-    downloadURL=$(getJSONValue "$hpClickData" 'data.softwareTypes[0].softwareDriversList[0].latestVersionDriver.fileUrl')
-    appNewVersion=$(getJSONValue "$hpClickData" 'data.softwareTypes[0].softwareDriversList[0].latestVersionDriver.version')
+    hpPlatformId="275027708611380099388405694207665"
+    hpOSData=$(curl -fsS "https://support.hp.com/wcc-services/swd-v2/osVersionData?cc=us&lc=en&productOid=15550865&authState=anonymous&template=SWDSeriesDownload" -H "Accept: application/json, text/plain, */*" -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" -H "Referer: https://support.hp.com/us-en/drivers/hp-click-printing-software/15550865") || cleanupAndExit 14 "Could not retrieve HP Click macOS platform data." ERROR
+    hpOSTMSId=$(getJSONValue "$hpOSData" "data.osAvailablePlatformsAnsOS.osPlatforms.find(p => p.id === \"$hpPlatformId\").osVersions.sort((a, b) => a.order - b.order)[0].id")
+    hpClickData=$(curl -fsS -X POST "https://support.hp.com/wcc-services/swd-v2/driverDetails?authState=anonymous&template=SWDSeriesDownload" -H "Accept: application/json, text/plain, */*" -H "Content-Type: application/json" -H "User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36" -H "Origin: https://support.hp.com" -H "Referer: https://support.hp.com/us-en/drivers/hp-click-printing-software/15550865" -d "{\"productLineCode\":\"GE\",\"lc\":\"en\",\"cc\":\"us\",\"osTMSId\":\"$hpOSTMSId\",\"osName\":\"Mac OS\",\"productNumberOid\":21355055,\"productSeriesOid\":15550865,\"platformId\":\"$hpPlatformId\"}") || cleanupAndExit 14 "Could not retrieve HP Click driver details." ERROR
+    hpClickDriver=$(getJSONValue "$hpClickData" 'data.softwareTypes.flatMap(type => type.softwareDriversList).map(driver => driver.latestVersionDriver).find(driver => driver.title === "HP Click")')
+    downloadURL=$(getJSONValue "$hpClickDriver" "fileUrl")
+    appNewVersion=$(getJSONValue "$hpClickDriver" "version")
+    [[ -n "$downloadURL" && -n "$appNewVersion" ]] || cleanupAndExit 14 "Could not determine the HP Click download URL or version." ERROR
     expectedTeamID="6HB5Y2QTA3"
     ;;
 hpeasyadmin)
@@ -7340,9 +7375,9 @@ jitsimeet)
 joplin)
     name="Joplin"
     type="dmg"
-    if [[ "$arch" == "arm64" ]]; then
+    if [[ "$(arch)" == "arm64" ]]; then
         archiveName="arm64.DMG"
-    elif [[ "$arch" == "i386" ]]; then
+    elif [[ "$(arch)" == "i386" ]]; then
         archiveName=".dmg"
     fi
     downloadURL=$(downloadURLFromGit laurent22 joplin)
@@ -8235,6 +8270,14 @@ macports)
     updateToolArguments="selfupdate"
     expectedTeamID="QTA3A3B7F3"
     ;;
+macshot)
+    name="macshot"
+    type="dmg"
+    archiveName="MacShot.dmg[0-9.]*"
+    downloadURL="$(downloadURLFromGit sw33tLie macshot)"
+    appNewVersion="$(versionFromGit sw33tLie macshot)"
+    expectedTeamID="BR52ZWX528"
+    ;;
 mactexbasic|\
 basictex)
     name="MacTeX Basic"
@@ -8311,9 +8354,9 @@ magicbullet)
 magnolia)
     name="Magnolia"
     type="dmg"
-    if [[ "$arch" == "arm64" ]]; then
+    if [[ "$(arch)" == "arm64" ]]; then
         archiveName="Magnolia-mac-arm64\\.dmg"
-    elif [[ "$arch" == "i386" ]]; then
+    elif [[ "$(arch)" == "i386" ]]; then
         archiveName="Magnolia-mac-x64\\.dmg"
     fi
     downloadURL=$(downloadURLFromGit caledavis Magnolia)
@@ -8983,6 +9026,16 @@ microsoftremotedesktop)
     updateTool="/Library/Application Support/Microsoft/MAU2.0/Microsoft AutoUpdate.app/Contents/MacOS/msupdate"
     updateToolArguments=( --install --apps MSRD10 )
     ;;
+microsoftwindowsappbeta)
+    name="Windows App Beta"
+    type="zip"
+    appCenterURL=$(curl -fs -o /dev/null -w '%{redirect_url}' "https://aka.ms/rdmacbeta" | sed -nE 's#^https://install\.appcenter\.ms/orgs/([^/]+)/apps/([^/]+)/distribution_groups/([^/?]+).*#https://install.appcenter.ms/api/v0.1/apps/\1/\2/distribution_groups/\3#p')
+    appCenterRelease=$(curl -fsL "${appCenterURL}/releases/$(curl -fsL "${appCenterURL}/public_releases" | plutil -extract 0.id raw -o - - 2>/dev/null)")
+    downloadURL=$(plutil -extract download_url raw -o - - <<< "$appCenterRelease" 2>/dev/null)
+    appNewVersion=$(plutil -extract version raw -o - - <<< "$appCenterRelease" 2>/dev/null)
+    versionKey="CFBundleVersion"
+    expectedTeamID="UBF8T346G9"
+    ;;
 microsoftword)
     name="Microsoft Word"
     type="pkg"
@@ -9064,7 +9117,8 @@ miro)
     fi
     expectedTeamID="M3GM7MFY7U"
     ;;
-missive)
+missive|\
+missiveapp)
     name="Missive"
     type="dmg"
     downloadURL="https://mail.missiveapp.com/download/mac"
@@ -9831,10 +9885,14 @@ onscreencontrol)
 onyx)
     name="OnyX"
     type="dmg"
-    osVersion=$( sw_vers -productVersion | cut -f1 -d'.' )
-    downloadURL="https://www.titanium-software.fr/download/$osVersion/OnyX.dmg"
-    appNewVersion=$( curl -fs https://www.titanium-software.fr/en/onyx.html | grep -Eo "OnyX [0-9]+\.[0-9]+\.[0-9]+ for macOS [^ ]+ $osVersion" | awk '{print $2}' | sort -Vr | head -1 )
-    versionKey="CFBundleShortVersionString"
+    osVersion="${installedOSversion%%.*}"
+    if [[ "$(arch)" == "i386" && "$osVersion" -ge 27 ]]; then
+        printlog "OnyX for macOS ${osVersion} requires Apple Silicon (arm64)." ERROR
+        cleanupAndExit 95 "OnyX requires Apple Silicon on macOS ${osVersion}" ERROR
+    else
+        downloadURL="https://www.titanium-software.fr/download/$osVersion/OnyX.dmg"
+    fi
+    appNewVersion=$(curl -fs https://www.titanium-software.fr/en/onyx.html | sed -nE "s/.*OnyX ([0-9]+([.][0-9]+)+) for macOS [A-Za-z ]+ ${osVersion}[^0-9].*/\\1/p" | head -1)
     expectedTeamID="T49MRBL8UL"
     ;;
 opencode)
@@ -10205,7 +10263,13 @@ pingplotter)
     appNewVersion=""
     expectedTeamID="JXB6F3JSYT"
     ;;
-pique)
+pinta)
+    name="Pinta"
+    type="dmg"
+    downloadURL="$(downloadURLFromGit PintaProject Pinta)"
+    appNewVersion="$(versionFromGit PintaProject Pinta)"
+    expectedTeamID="D5G6C56TBH"
+    ;;pique)
     name="Pique"
     type="pkg"
     if ! is-at-least 26 "$installedOSversion"; then
@@ -10497,6 +10561,23 @@ protondrive)
     downloadURL="https://proton.me/download/drive/macos/$appNewVersion/ProtonDrive-$appNewVersion.dmg"
     expectedTeamID="2SB5Z68H26"
     ;;
+protonmail)
+    name="Proton Mail"
+    type="dmg"
+    protonMailData=$(curl -fsL 'https://proton.me/download/mail/macos/version.json')
+    protonMailReleaseCount=$(getJSONValue "$protonMailData" 'Releases.length')
+    for (( protonMailReleaseIndex=0; protonMailReleaseIndex<protonMailReleaseCount; protonMailReleaseIndex++ )); do
+        if [[ $(getJSONValue "$protonMailData" "Releases[$protonMailReleaseIndex].CategoryName") == "Stable" ]]; then
+            appNewVersion=$(getJSONValue "$protonMailData" "Releases[$protonMailReleaseIndex].Version")
+            downloadURL=$(getJSONValue "$protonMailData" "Releases[$protonMailReleaseIndex].File[0].Url")
+            break
+        fi
+    done
+    if [[ -z $appNewVersion || -z $downloadURL ]]; then
+        cleanupAndExit 2 "Unable to resolve the latest stable Proton Mail release." ERROR
+    fi
+    expectedTeamID="2SB5Z68H26"
+    ;;
 protonpass)
     name="Proton Pass"
     type="dmg"
@@ -10728,14 +10809,6 @@ realvncserver)
     targetDir="/Applications/RealVNC"
     appNewVersion="$(curl -sL https://realvnc.zendesk.com/api/v2/help_center/en-us/articles/5835892358941.json | sed -n 's/.*VNC-Server-\([0-9.]*\)-MacOSX.*/\1/p')"
     downloadURL="https://downloads.realvnc.com/download/file/vnc.files/VNC-Server-$appNewVersion-MacOSX-universal.pkg"
-    expectedTeamID="ZNCQ8JEH7X"
-    ;;
-realvncviewer)
-    name="Real VNC Viewer"
-    appName="VNC Viewer.app"
-    type="dmg"
-    downloadURL="https://downloads.realvnc.com/download/file/viewer.files/VNC-Viewer-Latest-MacOSX-universal.dmg"
-    appNewVersion="$(curl -sL https://realvnc.zendesk.com/api/v2/help_center/en-us/articles/5835892358941.json | sed -n 's/.*VNC-Viewer-\([0-9.]*\)-MacOSX.*/\1/p')"
     expectedTeamID="ZNCQ8JEH7X"
     ;;
 reaper)
@@ -11273,10 +11346,10 @@ shotcut)
     ;;
 shottr)
     name="Shottr"
-    type="dmg"
-    downloadURL="https://shottr.cc$(curl -fs "https://shottr.cc/newversion.html" | grep -o '\/dl\/Shottr-[0-9.]*\.dmg' | head -1 | xargs)"
-    appNewVersion=$(echo $downloadURL | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1 | xargs)
-    [[ "$appNewVersion" =~ ^[0-9]+\.[0-9]+$ ]] && appNewVersion="${appNewVersion}.0"
+    type="pkg"
+    shottrJSON=$(curl -fs https://shottr.cc/api/version.json)
+    downloadURL=$(getJSONValue "$shottrJSON" "package")
+    appNewVersion=$(getJSONValue "$shottrJSON" "latestVersion")
     expectedTeamID="2Y683PRQWN"
     ;;
 sidekick)
@@ -11437,11 +11510,12 @@ smartgit)
     name="SmartGit"
     type="dmg"
     if [[ $(arch) == "arm64" ]]; then
-    downloadURL="https://www.syntevo.com$(curl -fs "https://www.syntevo.com/smartgit/download/" | grep -i -o -E "/downloads/.*/smartgit.*\.dmg" | tail -1)"
-    elif [[ $(arch) == "i386" ]]; then
-    downloadURL="https://www.syntevo.com$(curl -fs "https://www.syntevo.com/smartgit/download/" | grep -i -o -E "/downloads/.*/smartgit.*\.dmg" | head -1)"
+        smartgitArch="arm64"
+    else
+        smartgitArch="x86_64"
     fi
-    appNewVersion="$(curl -fs "https://www.syntevo.com/smartgit/changelog.txt" | grep -i -E "SmartGit *[0-9.]* *.*" | head -1 | awk '{print $2}')"
+    downloadURL=$(curl -fs "https://www.smartgit.dev/download/" | grep -o -E "https://download\.smartgit\.dev/smartgit/smartgit-[0-9_]+-macos-${smartgitArch}\.dmg" | sort -V | tail -1)
+    appNewVersion=$(echo "$downloadURL" | sed -E 's/.*smartgit-([0-9_]+)-macos.*/\1/; s/_/./g')
     expectedTeamID="PHMY45PTNW"
     ;;
 smartsheet)
@@ -11570,19 +11644,15 @@ snapgeneviewer)
     expectedTeamID="WVCV9Q8Y78"
     ;;
 snowflakeodbc)
-	name="Snowflake ODBC Driver"
-	type="pkgInDmg"
-	pkgName="snowflakeODBC.pkg"
-	packageID="net.snowflake.odbc"
-	expectedTeamID="W4NT6CRQ7U"
-	odbcYear=$(date +%Y)
-	appNewVersion=$(curl -fsL "https://docs.snowflake.com/en/release-notes/clients-drivers/odbc-${odbcYear}" | grep -oE "Version [0-9]+\.[0-9]+\.[0-9]+" | head -1 | awk '{print $2}')
-	if [[ -z "$appNewVersion" ]]; then
-		odbcYear=$((odbcYear - 1))
-		appNewVersion=$(curl -fsL "https://docs.snowflake.com/en/release-notes/clients-drivers/odbc-${odbcYear}" | grep -oE "Version [0-9]+\.[0-9]+\.[0-9]+" | head -1 | awk '{print $2}')
-	fi
-	downloadURL="https://sfc-repo.snowflakecomputing.com/odbc/macuniversal/${appNewVersion}/snowflake_odbc_mac_64universal-${appNewVersion}.dmg"
-	;;
+    name="Snowflake ODBC Driver"
+    type="pkgInDmg"
+    packageID="net.snowflake.odbc"
+    expectedTeamID="W4NT6CRQ7U"
+    odbcRepo="https://sfc-repo.snowflakecomputing.com/odbc/macuniversal"
+    appNewVersion=$(curl -fsL "$odbcRepo/" | grep -oE 'href="[0-9]+\.[0-9]+\.[0-9]+/index\.html"' | sed -E 's#href="([0-9]+\.[0-9]+\.[0-9]+)/index\.html"#\1#' | sort -t. -k1,1nr -k2,2nr -k3,3nr | head -n 1)
+    pkgName="snowflake-odbc-$appNewVersion.universal.pkg"
+    downloadURL="$odbcRepo/$appNewVersion/snowflake-odbc-$appNewVersion.universal.dmg"
+    ;;
 soapuiopensource)
     soapuiJSON=$(curl -fsL "https://api.github.com/repos/SmartBear/soapui/releases/latest")
     appNewVersion=$(getJSONValue "$soapuiJSON" "tag_name" | sed 's/^v//')
@@ -11616,7 +11686,16 @@ softubecentral)
 solstice)
     name="Mersive Solstice"
     type="dmg"
-    downloadURL="https://www.mersive.com/files/41693/"
+    downloadURL=$(curl -fsSL "https://www.mersive.com/downloads" |
+        grep -E 'Mac Apple|Mac Intel' |
+        grep -oE 'https?[^"]+SolsticeClient-[^"]+\.dmg' |
+        if [[ "$(arch)" == "arm64" ]]; then
+            head -n 1
+        else
+            tail -n 1
+        fi
+    )
+    appNewVersion=$(basename "$downloadURL" .dmg | cut -d '-' -f 2)
     expectedTeamID="63B5A5WDNG"
     ;;
 sonicpi)
@@ -12636,7 +12715,7 @@ topazgigapixelai)
     type="pkg"
     versionKey="CFBundleShortVersionString"
     downloadURL="https://topazlabs.com/d/gigapixel/latest/mac/full"
-    archiveName=$(curl -fsIL $downloadURL | grep -i ^location | awk -F "/" '{print $NF}')
+    archiveName=$(curl -fsIL $downloadURL | grep -i ^location | awk -F "/" '{print $NF}' | tr -d '\r')
     appNewVersion=$(grep -oi "[0-9].*[0-9]" <<< $archiveName)
     expectedTeamID="3G3JE37ZHF"
     ;;
@@ -13243,10 +13322,9 @@ vysor)
 wacomdrivers)
     name="Wacom Center"
     type="pkgInDmg"
-    downloadURL="$(curl -fs https://www.wacom.com/en-us/support/product-support/drivers | grep -e "drivers/mac/professional.*dmg" | head -1 | tr '"' "\n" | grep -i http)"
+    downloadURL="$(curl -fs -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" https://www.wacom.com/en-us/support/product-support/drivers | grep -e "drivers/mac/professional.*dmg" | head -1 | tr '"' "\n" | grep -i http)"
     expectedTeamID="EG27766DY7"
-    #pkgName="Install Wacom Tablet.pkg"
-    appNewVersion="$(curl -fs https://www.wacom.com/en-us/support/product-support/drivers | grep mac/professional/releasenotes | head -1 | tr '"' "\n" | grep -e "Driver [0-9][-0-9.]*" | sed -E 's/Driver ([-0-9.]*).*/\1/g')"
+    appNewVersion="$(curl -fs -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36" https://www.wacom.com/en-us/support/product-support/drivers | grep mac/professional/releasenotes | head -1 | tr '"' "\n" | grep -e "Driver [0-9][-0-9.]*" | sed -E 's/Driver ([-0-9.]*).*/\1/g')"
     ;;
 wallyezflash)
     name="Wally"

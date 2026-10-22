@@ -109,7 +109,7 @@ automounter
 autopkgr
 avertouch
 aviatrix
-awscli2
+awork
 awsvpnclient
 axurerp10
 azuredatastudio
@@ -118,7 +118,6 @@ backgrounds
 balenaetcher
 balsamiqwireframes
 bambustudio
-bartender
 basecamp3
 baseline
 baseline-nodaemon
@@ -272,6 +271,7 @@ conductor
 connectfonts
 container
 containermanager
+controlcenter
 cormorant
 cortexcode
 coteditor
@@ -376,8 +376,7 @@ elasticvue
 element
 elevate24
 elgatocamerahub
-elgatostreamdeck
-emacs
+elgatowavelink
 emdash
 enpass
 enteauth
@@ -406,6 +405,7 @@ fathom
 favro
 fellow
 ffmpegmartinriedl
+ffprobemartinriedl
 fiddlereverywhere
 fierycommandworkstation
 figma
@@ -699,6 +699,7 @@ macfuse
 macoslaps
 macpass
 macports
+macshot
 mactex
 mactexbasic
 mactexfull
@@ -778,6 +779,7 @@ microsoftteamsnew
 microsoftteamsreset
 microsoftvisualstudiocode
 microsoftwindowsapp
+microsoftwindowsappbeta
 microsoftword
 microsoftwordreset
 midimonitor
@@ -788,6 +790,7 @@ miniconda
 minisim
 miro
 missive
+missiveapp
 mist
 mist-cli
 mixxx
@@ -919,7 +922,7 @@ pgadmin4
 phoenixcode
 pika
 pingplotter
-pique
+pinta
 pitch
 plantronicshub
 platypus
@@ -954,6 +957,7 @@ promiseutilityr
 proofpointautoupdater
 propresenter7
 protondrive
+protonmail
 protonpass
 protonvpn
 proxyman
@@ -980,7 +984,6 @@ rawtherapee
 raycast
 realvncondemandassist
 realvncserver
-realvncviewer
 reaper
 rectangle
 redcanarymacmonitor
@@ -1111,6 +1114,7 @@ stackfield
 starface10x
 starface90x
 starface91x
+stats
 stats
 steelseriesengine
 steinbergactivationmanager
